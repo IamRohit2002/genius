@@ -2,75 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Image Display</title>
+    <title>Uploaded Images</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-
-        #imageGallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            padding: 20px;
-        }
-
-        .image-container {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            padding: 10px;
-            text-align: center;
-        }
-
-        .image-container img {
-            width: 100%;
-            height: auto;
-            border-radius: 5px;
-        }
-
-        .image-container h3 {
-            font-size: 18px;
-            margin: 10px 0;
-        }
+        body { font-family: Arial, sans-serif; background: #f4f4f4; text-align: center; }
+        .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; padding: 20px; }
+        .image-container { background: white; padding: 10px; border-radius: 8px; }
+        .image-container img { width: 100%; border-radius: 5px; }
     </style>
 </head>
 <body>
-
     <h1>Uploaded Images</h1>
-    <div id="imageGallery"></div>
+    <div class="gallery" id="imageGallery"></div>
 
     <script>
         async function fetchImages() {
-            try {
-                const response = await fetch('http://localhost:3000/images'); // ✅ Corrected URL
-                if (!response.ok) throw new Error(`HTTP Error! Status: ${response.status}`);
-                
-                const images = await response.json();
-                const gallery = document.getElementById('imageGallery');
-    
-                gallery.innerHTML = images.map(img => 
-                    `<div style="border: 1px solid #ddd; padding: 10px; margin: 10px;">
-                        <h3>${img.filename}</h3>
-                        <img src="data:${img.contentType};base64,${img.imageBase64}" 
-                             alt="${img.filename}" style="width:200px;height:auto;" />
-                    </div>`
-                ).join('');
-            } catch (err) {
-                console.error('❌ Failed to load images:', err);
-            }
+            const response = await fetch('/api/images');
+            const images = await response.json();
+            document.getElementById('imageGallery').innerHTML = images.map(img => 
+                `<div class="image-container">
+                    <h3>${img.filename}</h3>
+                    <p>${img.description}</p>
+                    <img src="data:${img.contentType};base64,${img.imageBase64}" />
+                </div>`
+            ).join('');
         }
-    
         window.onload = fetchImages;
     </script>
-
 </body>
 </html>

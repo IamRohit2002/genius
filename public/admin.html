@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Admin Panel</title>
+    <title>Upload Image</title>
 </head>
 <body>
-    <h1>Upload New Content</h1>
+    <h1>Upload Image</h1>
     <form id="uploadForm" enctype="multipart/form-data">
         <input type="text" id="title" placeholder="Title" required><br>
         <textarea id="description" placeholder="Description" required></textarea><br>
@@ -15,29 +15,16 @@
     <script>
         document.getElementById('uploadForm').onsubmit = async (e) => {
             e.preventDefault();
-    
+
             const formData = new FormData();
             formData.append('title', document.getElementById('title').value);
             formData.append('description', document.getElementById('description').value);
             formData.append('image', document.getElementById('image').files[0]);
-    
-            try {
-                const res = await fetch('http://localhost:3000/api/upload', { // 🔹 Corrected URL
-                    method: 'POST',
-                    body: formData,
-                });
-    
-                const data = await res.json();
-                if (res.ok) {
-                    alert('✅ Content uploaded successfully!');
-                    document.getElementById('uploadForm').reset();
-                } else {
-                    alert(`❌ Upload failed: ${data.error}`);
-                }
-            } catch (err) {
-                alert('❌ Server error. Please try again.');
-                console.error(err);
-            }
+
+            const res = await fetch('/api/upload', { method: 'POST', body: formData });
+
+            if (res.ok) alert('✅ Image uploaded successfully!');
+            else alert('❌ Upload failed.');
         };
     </script>
 </body>
