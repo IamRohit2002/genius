@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dynamic Image Display</title>
+</head>
+<body>
+    <h1>Uploaded Images</h1>
+    <div id="imageGallery"></div>
+
+    <script>
+        async function fetchImages() {
+            try {
+                const response = await fetch('/images');
+                const images = await response.json();
+                const gallery = document.getElementById('imageGallery');
+                gallery.innerHTML = images.map(img => 
+                    `<div>
+                        <img src="data:${img.contentType};base64,${img.imageBase64}" alt="${img.filename}" style="width:200px;height:auto;" />
+                        <p>${img.filename}</p>
+                    </div>`
+                ).join('');
+            } catch (err) {
+                console.error('Failed to load images', err);
+            }
+        }
+
+        window.onload = fetchImages;
+    </script>
+</body>
+</html>
