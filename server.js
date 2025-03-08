@@ -1,15 +1,14 @@
-require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const multer = require('multer');
-const cors = require('cors'); 
+const cors = require('cors');
 const Image = require('./ImageModel');
 
 const app = express();
 
 // Enable CORS for frontend
 app.use(cors({
-    origin: '*', // Change this to your frontend URL if needed
+    origin: '*', 
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type']
 }));
@@ -17,7 +16,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// MongoDB Connection (Ensure your MongoDB is a cloud database like MongoDB Atlas)
+// MongoDB Connection (Ensure MongoDB Atlas is used)
 mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -63,5 +62,5 @@ app.get('/api/images', async (req, res) => {
     }
 });
 
-// Export the Express app for Vercel
+// Export the app for Vercel (VERY IMPORTANT!)
 module.exports = app;
