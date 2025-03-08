@@ -1,27 +1,23 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const path = require('path');
 const multer = require('multer');
-const cors = require('cors'); // 🔹 Import CORS
+const cors = require('cors'); 
 const Image = require('./ImageModel');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// 🔹 Enable CORS (Allow requests from your frontend)
+// Enable CORS for frontend
 app.use(cors({
-    origin: 'http://127.0.0.1:5500', // Allow only your frontend
-    methods: ['GET', 'POST'], // Allowed methods
+    origin: '*', // Change this to your frontend URL if needed
+    methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type']
 }));
 
-// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
 
-// MongoDB Connection
+// MongoDB Connection (Ensure your MongoDB is a cloud database like MongoDB Atlas)
 mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -35,7 +31,7 @@ mongoose.connect(process.env.MONGO_URI, {
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-// 🔹 Image Upload Route (Now allows CORS)
+// Image Upload Route
 app.post('/api/upload', upload.single('image'), async (req, res) => {
     try {
         const { title, description } = req.body;
@@ -56,8 +52,8 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
     }
 });
 
-// 🔹 Fetch Images Route
-app.get('/images', async (req, res) => {
+// Fetch Images Route
+app.get('/api/images', async (req, res) => {
     try {
         const images = await Image.find({});
         res.json(images);
@@ -67,7 +63,5 @@ app.get('/images', async (req, res) => {
     }
 });
 
-// Start Server
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
+// Export the Express app for Vercel
+module.exports = app;
