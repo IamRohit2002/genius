@@ -1,35 +1,46 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const multer = require('multer');
-const Image = require('./ImageModel'); // Load the image model
+const cors = require('cors'); // 🔹 Import CORS
+const Image = require('./ImageModel');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-// Middleware to parse request body
+// 🔹 Enable CORS (Allow requests from your frontend)
+app.use(cors({
+    origin: 'http://127.0.0.1:5500', // Allow only your frontend
+    methods: ['GET', 'POST'], // Allowed methods
+    allowedHeaders: ['Content-Type']
+}));
+
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // MongoDB Connection
-mongoose.connect('mongodb+srv://kalyaniarote211:QYsrIG9f3YRaC2Z8@cluster0.pxdac.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0/newsupdate', {
+mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => {
-    console.log('Connected to MongoDB');
+    console.log('✅ Connected to MongoDB');
 }).catch((err) => {
-    console.error('Failed to connect to MongoDB', err);
+    console.error('❌ MongoDB Connection Failed:', err);
 });
 
 // Multer Storage Setup
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-// Image Upload Route
+// 🔹 Image Upload Route (Now allows CORS)
 app.post('/api/upload', upload.single('image'), async (req, res) => {
     try {
         const { title, description } = req.body;
+        if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
         const image = new Image({
             filename: title,
             contentType: req.file.mimetype,
@@ -37,26 +48,26 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
         });
 
         await image.save();
-        console.log('Image uploaded successfully');
-        res.status(200).send('Image uploaded successfully');
+        console.log('✅ Image uploaded successfully');
+        res.status(200).json({ message: 'Image uploaded successfully' });
     } catch (err) {
-        console.error('Error uploading image', err);
-        res.status(500).send('Upload failed');
+        console.error('❌ Error uploading image:', err);
+        res.status(500).json({ error: 'Upload failed' });
     }
 });
 
-// Fetch Images Route
+// 🔹 Fetch Images Route
 app.get('/images', async (req, res) => {
     try {
         const images = await Image.find({});
         res.json(images);
     } catch (err) {
-        console.error('Error fetching images', err);
-        res.status(500).send('Failed to fetch images');
+        console.error('❌ Error fetching images:', err);
+        res.status(500).json({ error: 'Failed to fetch images' });
     }
 });
 
 // Start Server
 app.listen(PORT, () => {
-    console.log(`Server started on port ${PORT}`);
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

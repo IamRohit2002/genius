@@ -15,18 +15,29 @@
     <script>
         document.getElementById('uploadForm').onsubmit = async (e) => {
             e.preventDefault();
+    
             const formData = new FormData();
             formData.append('title', document.getElementById('title').value);
             formData.append('description', document.getElementById('description').value);
             formData.append('image', document.getElementById('image').files[0]);
-
-            const res = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData,
-            });
-            
-            if (res.ok) alert('Content uploaded successfully!');
-            else alert('Upload failed.');
+    
+            try {
+                const res = await fetch('http://localhost:3000/api/upload', { // 🔹 Corrected URL
+                    method: 'POST',
+                    body: formData,
+                });
+    
+                const data = await res.json();
+                if (res.ok) {
+                    alert('✅ Content uploaded successfully!');
+                    document.getElementById('uploadForm').reset();
+                } else {
+                    alert(`❌ Upload failed: ${data.error}`);
+                }
+            } catch (err) {
+                alert('❌ Server error. Please try again.');
+                console.error(err);
+            }
         };
     </script>
 </body>
